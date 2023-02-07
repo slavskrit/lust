@@ -6,9 +6,11 @@ use std::fs;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    ///Initial population size
-    #[clap(short, long, default_value_t = String::from("."))]
+    #[clap(index=1, default_value_t = String::from("."))]
     pub path: String,
+
+    #[clap(short, long, default_value_t = true)]
+    pub colorify: bool,
 }
 
 fn main() {
