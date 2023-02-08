@@ -1,6 +1,6 @@
 use clap::Parser;
-use colored::Colorize;
-use std::fs;
+use colored::{ColoredString, Colorize};
+use std::{fs, path::PathBuf};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -24,8 +24,20 @@ fn get_files(path: &String) {
         let entry = entry.unwrap();
         let path = entry.path();
 
-        if path.is_dir() {
-            println!("{}", path.to_str().unwrap().red());
+        println!("{}", path.color());
+    }
+}
+
+trait Coloring {
+    fn color(&self) -> ColoredString;
+}
+
+impl Coloring for PathBuf {
+    fn color(&self) -> ColoredString {
+        let path = &self.to_str().unwrap();
+        if self.is_relative() {
+            return path.green();
         }
+        return path.red();
     }
 }
