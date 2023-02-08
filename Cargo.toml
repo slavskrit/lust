@@ -8,3 +8,7 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.1.4", features = ["derive"] }
 colored = "2.0.0"
+nerd_fonts = "0.1"
+serde = "1.0.136"
+serde_derive = "1.0.136"
+toml = "0.5.2"
