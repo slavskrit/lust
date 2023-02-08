@@ -3,12 +3,7 @@ use colored::{ColoredString, Colorize};
 use std::{fs, path::PathBuf};
 extern crate nerd_fonts;
 use nerd_fonts::NerdFonts;
-use std::process::exit;
-use toml;
 mod config;
-use config::Colors;
-
-use crate::config::Config;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -21,26 +16,9 @@ struct Args {
 }
 
 fn main() {
-    let filename = "src/config/config.toml";
-    let contents = match fs::read_to_string(filename) {
-        Ok(c) => c,
-        Err(_) => {
-            eprintln!("Could not read file `{}`", filename);
-            exit(1);
-        }
-    };
+    let config = config::read_file();
 
-    dbg!(&contents);
-
-    let data: Config = match toml::from_str(&contents) {
-        Ok(d) => d,
-        Err(e) => {
-            eprintln!("Unable to load data from `{}` {}", filename, e);
-            exit(1);
-        }
-    };
-
-    println!("{}", data.colors.unrecognized_file);
+    println!("{}", config.colors.unrecognized_file);
     let args = Args::parse();
     let path = args.path;
     get_files(&path)
