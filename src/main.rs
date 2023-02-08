@@ -3,24 +3,13 @@ use colored::{ColoredString, Colorize};
 use std::{fs, path::PathBuf};
 extern crate nerd_fonts;
 use nerd_fonts::NerdFonts;
-use serde_derive::Deserialize;
 use std::process::exit;
 use toml;
+mod config;
+use config::Colors;
 
-// Top level struct to hold the TOML data.
-#[derive(Deserialize)]
-struct Data {
-    config: Config,
-}
+use crate::config::Config;
 
-// Config struct holds to data from the `[config]` section.
-#[derive(Deserialize)]
-struct Config {
-    ip: String,
-    port: u16,
-}
-
-/// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -32,7 +21,7 @@ struct Args {
 }
 
 fn main() {
-    let filename = "config.toml";
+    let filename = "src/config/config.toml";
     let contents = match fs::read_to_string(filename) {
         Ok(c) => c,
         Err(_) => {
@@ -41,17 +30,17 @@ fn main() {
         }
     };
 
-    let data: Data = match toml::from_str(&contents) {
+    dbg!(&contents);
+
+    let data: Config = match toml::from_str(&contents) {
         Ok(d) => d,
-        Err(_) => {
-            eprintln!("Unable to load data from `{}`", filename);
+        Err(e) => {
+            eprintln!("Unable to load data from `{}` {}", filename, e);
             exit(1);
         }
     };
 
-    // Print out the values to `stdout`.
-    println!("{}", data.config.ip); // => 42.69.42.0
-    println!("{}", data.config.port); // => 42
+    println!("{}", data.colors.unrecognized_file);
     let args = Args::parse();
     let path = args.path;
     get_files(&path)
