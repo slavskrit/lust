@@ -48,6 +48,9 @@ trait Coloring {
 
 impl Coloring for PathBuf {
     fn iconed(&self) -> &str {
+        if self.is_symlink() {
+            return "fa-link";
+        }
         if self.is_dir() {
             return "fa-folder_open_o";
         }
