@@ -1,6 +1,7 @@
 use clap::Parser;
 use colored::{ColoredString, Colorize};
 use std::{fs, path::PathBuf};
+use toml::{map::Map, Value};
 extern crate nerd_fonts;
 use nerd_fonts::NerdFonts;
 mod config;
@@ -28,7 +29,10 @@ fn print_files(files: impl Iterator<Item = std::path::PathBuf>) {
         nf: NerdFonts::load(),
     };
     for file in files {
-        let icon = nf.get(file.iconed()).unwrap();
+        let icon = match nf.get(file.iconed(&config)) {
+            Some(d) => d,
+            None => nf.get("fa-file").unwrap(),
+        };
         let colored_name = file.colored();
         println!("{} {}", icon, colored_name);
     }
@@ -43,18 +47,29 @@ fn get_files_in_directory(path: &String) -> impl Iterator<Item = std::path::Path
 
 trait Coloring {
     fn colored(&self) -> ColoredString;
-    fn iconed(&self) -> &str;
+    fn iconed<'a>(&'a self, config: &'a Map<String, Value>) -> &str;
 }
 
 impl Coloring for PathBuf {
-    fn iconed(&self) -> &str {
-        if self.is_symlink() {
-            return "fa-link";
-        }
+    fn iconed<'a>(&'a self, config: &'a Map<String, Value>) -> &str {
         if self.is_dir() {
             return "fa-folder_open_o";
         }
-        return "fa-file";
+        if self.is_symlink() {
+            return "fa-link";
+        }
+        let default = "hidden";
+        let extension = match self.extension() {
+            Some(d) => d.to_str().unwrap(),
+            None => default,
+        };
+        let icons = config.get("icons").unwrap().as_table().unwrap();
+        let icon = match icons.get(extension) {
+            Some(d) => d,
+            None => icons.get(default).unwrap(),
+        };
+
+        icon.as_str().unwrap()
     }
 
     fn colored(&self) -> ColoredString {
