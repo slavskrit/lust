@@ -21,8 +21,6 @@ pub fn read_file() -> Config {
         }
     };
 
-    dbg!(&contents);
-
     return match toml::from_str(&contents) {
         Ok(d) => d,
         Err(e) => {
