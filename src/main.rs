@@ -74,9 +74,15 @@ impl Coloring for PathBuf {
 
     fn colored(&self) -> ColoredString {
         let path = &self.to_str().unwrap();
-        if self.is_relative() {
+        if self.is_dir() {
+            return path.blue();
+        }
+        if self.is_symlink() {
+            return path.white();
+        }
+        if self.is_absolute() {
             return path.truecolor(103, 0, 136);
         }
-        return path.red();
+        return path.yellow();
     }
 }
