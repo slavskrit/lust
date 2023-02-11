@@ -39,7 +39,6 @@ fn print_files(files: Vec<std::path::PathBuf>) {
         .unwrap();
     let column_width = max_filename_length + 3;
     let num_columns = max_width / max_filename_length - 1;
-    dbg!(max_width, max_filename_length, column_width, num_columns);
     for (i, file) in files.iter().enumerate() {
         let icon = match nf.get(file.iconed(&config)) {
             Some(d) => d,
