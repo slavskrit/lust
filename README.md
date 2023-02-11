@@ -10,4 +10,4 @@ Ok, experiment complete ✅
 
 Recommend to use [exa](https://github.com/ogham/exa)
 
-(![screenshot](https://github.com/slavskrit/lust/blob/master/screen.png?raw=true))
+![screenshot](https://github.com/slavskrit/lust/blob/master/screen.png?raw=true)
