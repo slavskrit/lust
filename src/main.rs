@@ -1,7 +1,6 @@
 use clap::Parser;
 use colored::{ColoredString, Colorize};
-use std::{fmt::format, fs, path::PathBuf};
-use term_size::dimensions;
+use std::{fs, path::PathBuf};
 use toml::{map::Map, Value};
 extern crate nerd_fonts;
 use nerd_fonts::NerdFonts;
