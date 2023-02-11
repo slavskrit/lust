@@ -1,6 +1,7 @@
 use clap::Parser;
 use colored::{ColoredString, Colorize};
-use std::{fs, path::PathBuf};
+use std::{fmt::format, fs, path::PathBuf};
+use term_size::dimensions;
 use toml::{map::Map, Value};
 extern crate nerd_fonts;
 use nerd_fonts::NerdFonts;
@@ -23,26 +24,44 @@ fn main() {
     print_files(files);
 }
 
-fn print_files(files: impl Iterator<Item = std::path::PathBuf>) {
+fn print_files(files: Vec<std::path::PathBuf>) {
     let config = config::read_file();
     let nf = NerdFonts {
         nf: NerdFonts::load(),
     };
-    for file in files {
+    let max_width = match term_size::dimensions() {
+        Some(d) => d.0,
+        None => 80,
+    };
+    let max_filename_length = files
+        .iter()
+        .map(|path| path.file_name().unwrap().to_string_lossy().len())
+        .max()
+        .unwrap();
+    let column_width = max_filename_length + 3;
+    let num_columns = max_width / max_filename_length - 1;
+    dbg!(max_width, max_filename_length, column_width, num_columns);
+    for (i, file) in files.iter().enumerate() {
         let icon = match nf.get(file.iconed(&config)) {
             Some(d) => d,
             None => nf.get("fa-file").unwrap(),
         };
         let colored_name = file.colored();
-        println!("{} {}", icon, colored_name);
+        let entry = format!("{icon} {colored_name}");
+        print!("{:width$}", entry, width = column_width);
+
+        if (i + 1) % num_columns == 0 {
+            println!();
+        }
     }
 }
 
-fn get_files_in_directory(path: &String) -> impl Iterator<Item = std::path::PathBuf> {
+fn get_files_in_directory(path: &String) -> Vec<std::path::PathBuf> {
     fs::read_dir(path)
         .unwrap()
         .filter_map(Result::ok)
         .map(|entry| entry.path())
+        .collect()
 }
 
 trait Coloring {
@@ -73,7 +92,7 @@ impl Coloring for PathBuf {
     }
 
     fn colored(&self) -> ColoredString {
-        let path = &self.to_str().unwrap();
+        let path = &self.file_name().unwrap().to_str().unwrap();
         if self.is_dir() {
             return path.blue();
         }
